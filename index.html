@@ -932,8 +932,6 @@
             document.getElementById('normal-correct-count').innerHTML = correct;
             document.getElementById('normal-wrong-count').innerHTML = wrong;
             document.getElementById('normal-total-count').innerHTML = questions.length;
-            document.getElementById('normal-mode-results').classList.remove('hidden');
-            document.getElementById('normal-mode').classList.add('hidden');
         }
         
         // Add this call in your normal-next-btn click handler
@@ -995,6 +993,8 @@
                 document.getElementById(&#x27;start-normal-mode&#x27;).addEventListener(&#x27;click&#x27;, startNormalMode);
                 document.getElementById(&#x27;normal-previous-btn&#x27;).addEventListener(&#x27;click&#x27;, showPreviousNormalQuestion);
                 document.getElementById(&#x27;normal-next-btn&#x27;).addEventListener(&#x27;click&#x27;, showNextNormalQuestion);
+                document.getElementById(&#x27'normal-nav-toggle').addEventListener(&#x27'click&#x27', toggleNavPanel);
+                document.getElementById(&#x27'normal-results-nav-toggle').addEventListener(&#x27'click&#x27', toggleResultsNavPanel);
                 
                 debugLog(&quot;Quiz initialized successfully&quot;);
             } catch (e) {
