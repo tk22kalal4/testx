@@ -993,12 +993,12 @@
                 document.getElementById(&#x27;start-normal-mode&#x27;).addEventListener(&#x27;click&#x27;, startNormalMode);
                 document.getElementById(&#x27;normal-previous-btn&#x27;).addEventListener(&#x27;click&#x27;, showPreviousNormalQuestion);
                 document.getElementById(&#x27;normal-next-btn&#x27;).addEventListener(&#x27;click&#x27;, showNextNormalQuestion);
-                document.getElementById(&#x27;normal-nav-toggle&#x27;).onclick = function() {
+                document.getElementById('normal-nav-toggle').addEventListener('click', function() {
                   toggleNavPanel('normal');
-                };
-                document.getElementById(&#x27;normal-results-nav-toggle&#x27;).onclick = function() {
+                });
+                document.getElementById('normal-results-nav-toggle').addEventListener('click', function() {
                   toggleResultsNavPanel('normal');
-                };                
+                });                
                 debugLog(&quot;Quiz initialized successfully&quot;);
             } catch (e) {
                 console.error(&quot;Failed to initialize quiz:&quot;, e);
