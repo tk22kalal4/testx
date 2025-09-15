@@ -824,7 +824,7 @@
             
             // Update navigation buttons
             document.getElementById(&#x27;normal-previous-btn&#x27;).disabled = index === 0;
-            document.getElementById(&#x27;normal-next-btn&#x27;).disabled = index === questions.length - 1;
+            document.getElementById('normal-next-btn').disabled = false;
             
             // If already answered, show explanation
             if (normalModeAnswers[index] !== null) {
