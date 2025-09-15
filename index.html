@@ -457,6 +457,18 @@
         height: 40px;
         animation: spin 1s linear infinite;
     }
+    #normal-explanation {
+  /* Ensure explanation section does not overflow */
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+#normal-explanation table {
+  display: block;
+  overflow-x: auto;
+  min-width: 100%;
+  white-space: nowrap;
+}
     @keyframes spin {
         0% { transform: translate(-50%, -50%) rotate(0deg); }
         100% { transform: translate(-50%, -50%) rotate(360deg); }
