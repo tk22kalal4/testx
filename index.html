@@ -556,7 +556,16 @@
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/section&gt;
-
+&lt;!-- Normal Mode Results Section --&gt;
+&lt;section class=&quot;container mx-auto px-4 md:px-6 pt-4 md:pt-6 pb-1 hidden section-transition&quot; id=&quot;normal-mode-results&quot;&gt;
+  &lt;div class=&quot;bg-white rounded-lg shadow-md p-4 md:p-6&quot;&gt;
+    &lt;h2 class=&quot;text-xl font-semibold mb-4&quot;&gt;Normal Mode Results&lt;/h2&gt;
+    &lt;p class=&quot;text-lg mb-2&quot;&gt;&lt;strong&gt;Correct:&lt;/strong&gt; &lt;span id=&quot;normal-correct-count&quot;&gt;0&lt;/span&gt;&lt;/p&gt;
+    &lt;p class=&quot;text-lg mb-2&quot;&gt;&lt;strong&gt;Wrong:&lt;/strong&gt; &lt;span id=&quot;normal-wrong-count&quot;&gt;0&lt;/span&gt;&lt;/p&gt;
+    &lt;p class=&quot;text-lg mb-4&quot;&gt;&lt;strong&gt;Total Questions:&lt;/strong&gt; &lt;span id=&quot;normal-total-count&quot;&gt;0&lt;/span&gt;&lt;/p&gt;
+    &lt;button class=&quot;bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition&quot; onclick=&quot;restartNormalMode()&quot;&gt;Try Again&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/section&gt;
 &lt;!-- Quiz Section --&gt;
 &lt;section class=&quot;container mx-auto px-4 md:px-6 pt-4 md:pt-6 pb-1 hidden section-transition&quot; id=&quot;quiz&quot;&gt;
 &lt;div class=&quot;bg-white rounded-lg shadow-md p-4 md:p-6&quot;&gt;
@@ -887,10 +896,54 @@
         }
     
         // Navigate to next question in normal mode
+        // Show Normal Mode Results after last question
+        function showNormalModeResults() {
+            let correct = 0;
+            let wrong = 0;
+            for (let i = 0; i &lt; questions.length; i++) {
+                const q = questions[i];
+                const given = normalModeAnswers[i];
+                let correctLabel = null;
+                if (q.options &amp;&amp; Array.isArray(q.options)) {
+                    for (const opt of q.options) {
+                        if (opt.correct) {
+                            correctLabel = opt.label;
+                            break;
+                        }
+                    }
+                }
+                if (given) {
+                    if (given === correctLabel) {
+                        correct++;
+                    } else {
+                        wrong++;
+                    }
+                }
+                // unanswered are skipped here
+            }
+            document.getElementById('normal-correct-count').innerHTML = correct;
+            document.getElementById('normal-wrong-count').innerHTML = wrong;
+            document.getElementById('normal-total-count').innerHTML = questions.length;
+            document.getElementById('normal-mode-results').classList.remove('hidden');
+            document.getElementById('normal-mode').classList.add('hidden');
+        }
+        
+        // Add this call in your normal-next-btn click handler
         function showNextNormalQuestion() {
             if (normalModeCurrentQuestion &lt; questions.length - 1) {
                 showNormalQuestion(normalModeCurrentQuestion + 1);
+            } else {
+                showNormalModeResults();
             }
+        }
+        
+        // Restart Normal Mode
+        function restartNormalMode() {
+            normalModeCurrentQuestion = 0;
+            normalModeAnswers = new Array(questions.length).fill(null);
+            document.getElementById('normal-mode-results').classList.add('hidden');
+            document.getElementById('normal-mode').classList.remove('hidden');
+            showNormalQuestion(normalModeCurrentQuestion);
         }
     
         // Initialize quiz
