@@ -696,110 +696,6 @@
             debugLog(&quot;Loaded fallback questions&quot;);
         }
 
-        let normalModeCurrentQuestion = 0;
-        let normalModeAnswers = new Array(questions.length).fill(null);
-
-        function startNormalMode() {
-          document.getElementById(&apos;instructions&apos;).classList.add(&apos;hidden&apos;);
-          document.getElementById(&apos;normal-mode&apos;).classList.remove(&apos;hidden&apos;);
-          showNormalQuestion(normalModeCurrentQuestion);
-        }
-        
-        // Show question in normal mode
-        function showNormalQuestion(index) {
-          normalModeCurrentQuestion = index;
-          const q = questions[index];
-          
-          document.getElementById(&apos;normal-question-number&apos;).innerHTML = &grave;Question &lt;span&gt;${index + 1}&lt;/span&gt; of ${questions.length}&grave;;
-          document.getElementById(&apos;normal-question-text&apos;).innerHTML = q.text || &quot;No question text available&quot;;
-          
-          // Display question images
-          const imagesDiv = document.getElementById(&apos;normal-question-images&apos;);
-          imagesDiv.innerHTML = q.question_images &amp;&amp; q.question_images.length &gt; 0
-            ? q.question_images.map(url =&gt; &grave;&lt;img src=&quot;${url}&quot; alt=&quot;Question Image&quot; class=&quot;max-w-full h-auto rounded-lg&quot;&gt;&grave;).join(&apos;&apos;)
-            : &apos;&apos;;
-          
-          // Display options
-          const optionsDiv = document.getElementById(&apos;normal-options&apos;);
-          optionsDiv.innerHTML = q.options &amp;&amp; q.options.length &gt; 0
-            ? q.options.map(opt =&gt; &grave;
-                &lt;button class=&quot;option-btn w-full text-left p-3 border rounded-lg&quot; 
-                        onclick=&quot;selectNormalOption(${index}, &apos;${opt.label}&apos;)&quot; 
-                        aria-label=&quot;Option ${opt.label}: ${opt.text}&quot;
-                        ${normalModeAnswers[index] ? &apos;disabled&apos; : &apos;&apos;}&gt;
-                  ${opt.label}. ${opt.text}
-                &lt;/button&gt;
-              &grave;).join(&apos;&apos;)
-            : &apos;&lt;p class=&quot;text-red-500&quot;&gt;No options available&lt;/p&gt;&apos;;
-          
-          // Hide explanation initially
-          document.getElementById(&apos;normal-explanation&apos;).classList.add(&apos;hidden&apos;);
-          
-          // Update navigation buttons
-          document.getElementById(&apos;normal-previous-btn&apos;).disabled = index === 0;
-          document.getElementById(&apos;normal-next-btn&apos;).disabled = index === questions.length - 1;
-          
-          // If already answered, show explanation
-          if (normalModeAnswers[index] !== null) {
-            showNormalExplanation(index);
-          }
-        }
-        
-        // Select option in normal mode
-        function selectNormalOption(index, label) {
-          normalModeAnswers[index] = label;
-          const q = questions[index];
-          const isCorrect = q.options.find(opt =&gt; opt.label === label)?.correct;
-          
-          // Color the options
-          const optionsDiv = document.getElementById(&apos;normal-options&apos;);
-          const optionButtons = optionsDiv.querySelectorAll(&apos;.option-btn&apos;);
-          
-          optionButtons.forEach(btn =&gt; {
-            const btnLabel = btn.textContent.trim().split(&apos;.&apos;)[0];
-            const optionIsCorrect = q.options.find(opt =&gt; opt.label === btnLabel)?.correct;
-            
-            if (btnLabel === label) {
-              btn.classList.add(isCorrect ? &apos;bg-green-100 border-green-500&apos; : &apos;bg-red-100 border-red-500&apos;);
-            } else if (optionIsCorrect) {
-              btn.classList.add(&apos;bg-green-100 border-green-500&apos;);
-            }
-            
-            btn.disabled = true;
-          });
-          
-          // Show explanation
-          showNormalExplanation(index);
-        }
-        
-        // Show explanation in normal mode
-        function showNormalExplanation(index) {
-          const q = questions[index];
-          const explanationDiv = document.getElementById(&apos;normal-explanation&apos;);
-          const explanationContent = document.getElementById(&apos;normal-explanation-content&apos;);
-          const explanationImages = document.getElementById(&apos;normal-explanation-images&apos;);
-          
-          explanationContent.innerHTML = q.explanation || &apos;No explanation available&apos;;
-          explanationImages.innerHTML = q.explanation_images &amp;&amp; q.explanation_images.length &gt; 0
-            ? q.explanation_images.map(url =&gt; &grave;&lt;img src=&quot;${url}&quot; alt=&quot;Explanation Image&quot; class=&quot;max-w-full h-auto rounded-lg&quot;&gt;&grave;).join(&apos;&apos;)
-            : &apos;&apos;;
-          
-          explanationDiv.classList.remove(&apos;hidden&apos;);
-        }
-        
-        // Navigate to previous question in normal mode
-        function showPreviousNormalQuestion() {
-          if (normalModeCurrentQuestion &gt; 0) {
-            showNormalQuestion(normalModeCurrentQuestion - 1);
-          }
-        }
-        
-        // Navigate to next question in normal mode
-        function showNextNormalQuestion() {
-          if (normalModeCurrentQuestion &lt; questions.length - 1) {
-            showNormalQuestion(normalModeCurrentQuestion + 1);
-          }
-        }
         // Quiz state
         let currentQuestion = 0;
         let answers = new Array(questions.length).fill(null);
@@ -807,7 +703,11 @@
         let timeRemaining = 14 * 60; // Duration in seconds
         let timerInterval = null;
         const quizId = `{title.replace(/\s+/g, &#x27;_&#x27;).toLowerCase()}`; // Unique ID for local storage
-
+    
+        // Normal mode state
+        let normalModeCurrentQuestion = 0;
+        let normalModeAnswers = new Array(questions.length).fill(null);
+    
         // Load saved progress
         function loadProgress() {
             try {
@@ -827,7 +727,7 @@
                 debugLog(&quot;Failed to load progress: &quot; + e.message);
             }
         }
-
+    
         // Save progress
         function saveProgress() {
             try {
@@ -843,7 +743,110 @@
                 debugLog(&quot;Failed to save progress: &quot; + e.message);
             }
         }
-
+    
+        // Start normal mode
+        function startNormalMode() {
+            document.getElementById(&#x27;instructions&#x27;).classList.add(&#x27;hidden&#x27;);
+            document.getElementById(&#x27;normal-mode&#x27;).classList.remove(&#x27;hidden&#x27;);
+            showNormalQuestion(normalModeCurrentQuestion);
+        }
+    
+        // Show question in normal mode
+        function showNormalQuestion(index) {
+            normalModeCurrentQuestion = index;
+            const q = questions[index];
+            
+            document.getElementById(&#x27;normal-question-number&#x27;).innerHTML = `Question &lt;span&gt;${index + 1}&lt;/span&gt; of ${questions.length}`;
+            document.getElementById(&#x27;normal-question-text&#x27;).innerHTML = q.text || &quot;No question text available&quot;;
+            
+            // Display question images
+            const imagesDiv = document.getElementById(&#x27;normal-question-images&#x27;);
+            imagesDiv.innerHTML = q.question_images &amp;&amp; q.question_images.length &gt; 0
+                ? q.question_images.map(url =&gt; `&lt;img src=&quot;${url}&quot; alt=&quot;Question Image&quot; class=&quot;max-w-full h-auto rounded-lg&quot;&gt;`).join(&#x27;&#x27;)
+                : &#x27;&#x27;;
+            
+            // Display options
+            const optionsDiv = document.getElementById(&#x27;normal-options&#x27;);
+            optionsDiv.innerHTML = q.options &amp;&amp; q.options.length &gt; 0
+                ? q.options.map(opt =&gt; `
+                    &lt;button class=&quot;option-btn w-full text-left p-3 border rounded-lg&quot; 
+                            onclick=&quot;selectNormalOption(${index}, &#x27;${opt.label}&#x27;)&quot; 
+                            aria-label=&quot;Option ${opt.label}: ${opt.text}&quot;
+                            ${normalModeAnswers[index] ? &#x27;disabled&#x27; : &#x27;&#x27;}&gt;
+                      ${opt.label}. ${opt.text}
+                    &lt;/button&gt;
+                  `).join(&#x27;&#x27;)
+                : &#x27;&lt;p class=&quot;text-red-500&quot;&gt;No options available&lt;/p&gt;&#x27;;
+            
+            // Hide explanation initially
+            document.getElementById(&#x27;normal-explanation&#x27;).classList.add(&#x27;hidden&#x27;);
+            
+            // Update navigation buttons
+            document.getElementById(&#x27;normal-previous-btn&#x27;).disabled = index === 0;
+            document.getElementById(&#x27;normal-next-btn&#x27;).disabled = index === questions.length - 1;
+            
+            // If already answered, show explanation
+            if (normalModeAnswers[index] !== null) {
+                showNormalExplanation(index);
+            }
+        }
+    
+        // Select option in normal mode
+        function selectNormalOption(index, label) {
+            normalModeAnswers[index] = label;
+            const q = questions[index];
+            const isCorrect = q.options.find(opt =&gt; opt.label === label)?.correct;
+            
+            // Color the options
+            const optionsDiv = document.getElementById(&#x27;normal-options&#x27;);
+            const optionButtons = optionsDiv.querySelectorAll(&#x27;.option-btn&#x27;);
+            
+            optionButtons.forEach(btn =&gt; {
+                const btnLabel = btn.textContent.trim().split(&#x27;.&#x27;)[0];
+                const optionIsCorrect = q.options.find(opt =&gt; opt.label === btnLabel)?.correct;
+                
+                if (btnLabel === label) {
+                    btn.classList.add(isCorrect ? &#x27;bg-green-100 border-green-500&#x27; : &#x27;bg-red-100 border-red-500&#x27;);
+                } else if (optionIsCorrect) {
+                    btn.classList.add(&#x27;bg-green-100 border-green-500&#x27;);
+                }
+                
+                btn.disabled = true;
+            });
+            
+            // Show explanation
+            showNormalExplanation(index);
+        }
+    
+        // Show explanation in normal mode
+        function showNormalExplanation(index) {
+            const q = questions[index];
+            const explanationDiv = document.getElementById(&#x27;normal-explanation&#x27;);
+            const explanationContent = document.getElementById(&#x27;normal-explanation-content&#x27;);
+            const explanationImages = document.getElementById(&#x27;normal-explanation-images&#x27;);
+            
+            explanationContent.innerHTML = q.explanation || &#x27;No explanation available&#x27;;
+            explanationImages.innerHTML = q.explanation_images &amp;&amp; q.explanation_images.length &gt; 0
+                ? q.explanation_images.map(url =&gt; `&lt;img src=&quot;${url}&quot; alt=&quot;Explanation Image&quot; class=&quot;max-w-full h-auto rounded-lg&quot;&gt;`).join(&#x27;&#x27;)
+                : &#x27;&#x27;;
+            
+            explanationDiv.classList.remove(&#x27;hidden&#x27;);
+        }
+    
+        // Navigate to previous question in normal mode
+        function showPreviousNormalQuestion() {
+            if (normalModeCurrentQuestion &gt; 0) {
+                showNormalQuestion(normalModeCurrentQuestion - 1);
+            }
+        }
+    
+        // Navigate to next question in normal mode
+        function showNextNormalQuestion() {
+            if (normalModeCurrentQuestion &lt; questions.length - 1) {
+                showNormalQuestion(normalModeCurrentQuestion + 1);
+            }
+        }
+    
         // Initialize quiz
         function initQuiz() {
             try {
@@ -880,9 +883,12 @@
                 document.getElementById(&#x27;results-nav-toggle&#x27;).addEventListener(&#x27;click&#x27;, toggleResultsNavPanel);
                 document.getElementById(&#x27;close-results-nav&#x27;).addEventListener(&#x27;click&#x27;, toggleResultsNavPanel);
                 document.getElementById(&#x27;results-nav-filter&#x27;).addEventListener(&#x27;change&#x27;, updateResultsNavPanel);
-                document.getElementById(&apos;start-normal-mode&apos;).addEventListener(&apos;click&apos;, startNormalMode);
-                document.getElementById(&apos;normal-previous-btn&apos;).addEventListener(&apos;click&apos;, showPreviousNormalQuestion);
-                document.getElementById(&apos;normal-next-btn&apos;).addEventListener(&apos;click&apos;, showNextNormalQuestion);
+                
+                // Normal Mode event listeners
+                document.getElementById(&#x27;start-normal-mode&#x27;).addEventListener(&#x27;click&#x27;, startNormalMode);
+                document.getElementById(&#x27;normal-previous-btn&#x27;).addEventListener(&#x27;click&#x27;, showPreviousNormalQuestion);
+                document.getElementById(&#x27;normal-next-btn&#x27;).addEventListener(&#x27;click&#x27;, showNextNormalQuestion);
+                
                 debugLog(&quot;Quiz initialized successfully&quot;);
             } catch (e) {
                 console.error(&quot;Failed to initialize quiz:&quot;, e);
