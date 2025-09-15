@@ -803,45 +803,59 @@
     
         // Select option in normal mode
         function selectNormalOption(index, label) {
-            normalModeAnswers[index] = label;
-            const q = questions[index];
-            const isCorrect = q.options.find(opt =&gt; opt.label === label)?.correct;
-            
-            // Color the options
-            const optionsDiv = document.getElementById(&#x27;normal-options&#x27;);
-            const optionButtons = optionsDiv.querySelectorAll(&#x27;.option-btn&#x27;);
-            
-            optionButtons.forEach(btn =&gt; {
-                const btnLabel = btn.textContent.trim().split(&#x27;.&#x27;)[0];
-                const optionIsCorrect = q.options.find(opt =&gt; opt.label === btnLabel)?.correct;
-                
-                if (btnLabel === label) {
-                    btn.classList.add(isCorrect ? &#x27;bg-green-100 border-green-500&#x27; : &#x27;bg-red-100 border-red-500&#x27;);
-                } else if (optionIsCorrect) {
-                    btn.classList.add(&#x27;bg-green-100 border-green-500&#x27;);
-                }
-                
-                btn.disabled = true;
-            });
-            
-            // Show explanation
-            showNormalExplanation(index);
+          normalModeAnswers[index] = label;
+          const q = questions[index];
+    
+          // Find correct label
+          let correctLabel = null;
+          if (q.options && Array.isArray(q.options)) {
+            for (const opt of q.options) {
+              if (opt.correct) {
+                correctLabel = opt.label;
+                break;
+              }
+            }
+          }
+    
+          // Color the options
+          const optionsDiv = document.getElementById('normal-options');
+          const optionButtons = optionsDiv.querySelectorAll('.option-btn');
+          optionButtons.forEach(btn => {
+            // Extract label using regex for robustness
+            const btnLabel = btn.textContent.trim().match(/^([A-D])/i);
+            const labelText = btnLabel ? btnLabel[1] : '';
+            btn.classList.remove('correct', 'incorrect');
+            btn.disabled = true; // Disable after selection
+    
+            if (labelText === label) {
+              if (labelText === correctLabel) {
+                btn.classList.add('correct');
+              } else {
+                btn.classList.add('incorrect');
+              }
+            } else if (labelText === correctLabel) {
+              btn.classList.add('correct');
+            }
+          });
+    
+          // Show explanation
+          showNormalExplanation(index);
         }
     
-        // Show explanation in normal mode
+        // Show explanation in normal mode (already correct)
         function showNormalExplanation(index) {
-            const q = questions[index];
-            const explanationDiv = document.getElementById(&#x27;normal-explanation&#x27;);
-            const explanationContent = document.getElementById(&#x27;normal-explanation-content&#x27;);
-            const explanationImages = document.getElementById(&#x27;normal-explanation-images&#x27;);
-            
-            explanationContent.innerHTML = q.explanation || &#x27;No explanation available&#x27;;
-            explanationImages.innerHTML = q.explanation_images &amp;&amp; q.explanation_images.length &gt; 0
-                ? q.explanation_images.map(url =&gt; `&lt;img src=&quot;${url}&quot; alt=&quot;Explanation Image&quot; class=&quot;max-w-full h-auto rounded-lg&quot;&gt;`).join(&#x27;&#x27;)
-                : &#x27;&#x27;;
-            
-            explanationDiv.classList.remove(&#x27;hidden&#x27;);
+          const q = questions[index];
+          const explanationDiv = document.getElementById('normal-explanation');
+          const explanationContent = document.getElementById('normal-explanation-content');
+          const explanationImages = document.getElementById('normal-explanation-images');
+    
+          explanationContent.innerHTML = q.explanation || '&lt;p&gt;No explanation available&lt;/p&gt;';
+          explanationImages.innerHTML = q.explanation_images && q.explanation_images.length > 0
+            ? q.explanation_images.map(url => `&lt;img src=&quot;${url}&quot; alt=&quot;Explanation Image&quot; class=&quot;max-w-full h-auto rounded-lg&quot;&gt;`).join('')
+            : '';
+          explanationDiv.classList.remove('hidden');
         }
+
     
         // Navigate to previous question in normal mode
         function showPreviousNormalQuestion() {
