@@ -754,6 +754,7 @@
         // Normal mode state
         let normalModeCurrentQuestion = 0;
         let normalModeAnswers = new Array(questions.length).fill(null);
+        let currentMode = 'quiz'; // Track current active mode: 'quiz' or 'normal'
     
         // Load saved progress
         function loadProgress() {
@@ -793,6 +794,7 @@
     
         // Start normal mode
         function startNormalMode() {
+            currentMode = 'normal'; // Set mode to normal
             document.getElementById(&#x27;instructions&#x27;).classList.add(&#x27;hidden&#x27;);
             document.getElementById(&#x27;normal-mode&#x27;).classList.remove(&#x27;hidden&#x27;);
             showNormalQuestion(normalModeCurrentQuestion);
@@ -831,8 +833,6 @@
             // Update navigation buttons
             document.getElementById(&#x27;normal-previous-btn&#x27;).disabled = index === 0;
             document.getElementById('normal-next-btn').disabled = false;
-            document.getElementById('normal-nav-toggle').addEventListener('click', toggleNavPanel);
-            document.getElementById('normal-results-nav-toggle').addEventListener('click', toggleResultsNavPanel);
       
             // Close the navigation panel if open
             const navPanel = document.getElementById('nav-panel');
@@ -1090,6 +1090,7 @@
         // Start quiz
         function startQuiz() {
             try {
+                currentMode = 'quiz'; // Set mode to quiz
                 debugLog(&quot;Starting quiz&quot;);
                 document.getElementById(&#x27;instructions&#x27;).classList.add(&#x27;hidden&#x27;);
                 document.getElementById(&#x27;quiz&#x27;).classList.remove(&#x27;hidden&#x27;);
@@ -1319,13 +1320,14 @@
         }
         
         // Toggle quiz navigation panel (quiz or normal mode)
-        function toggleNavPanel(mode = 'quiz') {
+        function toggleNavPanel(mode) {
             try {
-                debugLog(&quot;Toggling quiz navigation panel, mode: &quot; + mode);
+                const activeMode = mode || currentMode; // Use currentMode if mode not specified
+                debugLog(&quot;Toggling quiz navigation panel, mode: &quot; + activeMode);
                 const navPanel = document.getElementById(&#x27;nav-panel&#x27;);
                 navPanel.classList.toggle(&#x27;hidden&#x27;);
                 if (!navPanel.classList.contains(&#x27;hidden&#x27;)) {
-                    updateNavPanel(mode);
+                    updateNavPanel(activeMode);
                 }
                 debugLog(&quot;Quiz navigation panel toggled&quot;);
             } catch (e) {
@@ -1335,13 +1337,14 @@
         }
         
         // Toggle results navigation panel (quiz or normal mode)
-        function toggleResultsNavPanel(mode = 'quiz') {
+        function toggleResultsNavPanel(mode) {
             try {
-                debugLog(&quot;Toggling results navigation panel, mode: &quot; + mode);
+                const activeMode = mode || currentMode; // Use currentMode if mode not specified
+                debugLog(&quot;Toggling results navigation panel, mode: &quot; + activeMode);
                 const resultsNavPanel = document.getElementById(&#x27;results-nav-panel&#x27;);
                 resultsNavPanel.classList.toggle(&#x27;hidden&#x27;);
                 if (!resultsNavPanel.classList.contains(&#x27;hidden&#x27;)) {
-                    updateResultsNavPanel(mode);
+                    updateResultsNavPanel(activeMode);
                 }
                 debugLog(&quot;Results navigation panel toggled&quot;);
             } catch (e) {
